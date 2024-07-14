@@ -25,7 +25,7 @@
       "wut": "05:50",
       "tt": "7h 0m",
       "complaint": "Fit to work",
-      "foreman": "Not yet validated"
+      "foreman": "Not validated"
     },
     {
       "name": "Herman",
@@ -34,7 +34,7 @@
       "wut": "05:00",
       "tt": "7h 0m",
       "complaint": "Fit to work",
-      "foreman": "Not yet validated"
+      "foreman": "Not validated"
     },
     {
       "name": "Anto",
@@ -43,7 +43,7 @@
       "wut": "05:00",
       "tt": "7h 0m",
       "complaint": "Fit to work",
-      "foreman": "Not yet validated"
+      "foreman": "Not validated"
     }
   ]
 }
