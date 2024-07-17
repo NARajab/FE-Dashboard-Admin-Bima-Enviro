@@ -3,8 +3,7 @@
     {
       "name": "Ujang",
       "date": "23 April 2024",
-      "bt": "22:00",
-      "wut": "05:00",
+      "imageUrl": "https://ik.imagekit.io/AliRajab03/IMG-1719707258551._H7RYLl8f_.jpg?updatedAt=1719707261329",
       "tt": "7h 0m",
       "complaint": "Fit to work",
       "foreman": "Validated"
@@ -12,8 +11,7 @@
     {
       "name": "Usep",
       "date": "23 April 2024",
-      "bt": "21:00",
-      "wut": "05:00",
+      "imageUrl": "https://ik.imagekit.io/AliRajab03/IMG-1719746037526._f-Ui3gYui.png?updatedAt=1719746037667",
       "tt": "8h 0m",
       "complaint": "Fit to work",
       "foreman": "Validated"
@@ -21,28 +19,25 @@
     {
       "name": "Kasep",
       "date": "23 April 2024",
-      "bt": "22:50",
-      "wut": "05:50",
-      "tt": "7h 0m",
-      "complaint": "Fit to work",
+      "imageUrl": "https://ik.imagekit.io/AliRajab03/IMG-1719746037526._f-Ui3gYui.png?updatedAt=1719746037667",
+      "tt": "5h 30m",
+      "complaint": "On Monitoring",
       "foreman": "Not validated"
     },
     {
       "name": "Herman",
       "date": "23 April 2024",
-      "bt": "22:00",
-      "wut": "05:00",
-      "tt": "7h 0m",
-      "complaint": "Fit to work",
+      "imageUrl": "https://ik.imagekit.io/AliRajab03/IMG-1719746037526._f-Ui3gYui.png?updatedAt=1719746037667",
+      "tt": "5h 30m",
+      "complaint": "On Monitoring",
       "foreman": "Not validated"
     },
     {
       "name": "Anto",
       "date": "23 April 2024",
-      "bt": "22:00",
-      "wut": "05:00",
-      "tt": "7h 0m",
-      "complaint": "Fit to work",
+      "imageUrl": "https://ik.imagekit.io/AliRajab03/IMG-1719746037526._f-Ui3gYui.png?updatedAt=1719746037667",
+      "tt": "3h 0m",
+      "complaint": "Kurang Tidur",
       "foreman": "Not validated"
     }
   ]

@@ -1,18 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CardDataStats from '../../components/CardDataStats';
 import ChartOne from '../../components/Charts/ChartOne';
-// import ChartThree from '../../components/Charts/ChartThree';
 import ChartTwo from '../../components/Charts/ChartTwo';
 import DefaultLayout from '../../layout/DefaultLayout';
-// import ChatCard from '../../components/Chat/ChatCard';
-// import MapOne from '../../components/Maps/MapOne';
-// import TableOne from '../../components/Tables/TableOne';
+import { getAllData } from '../../api/fetching/p2h/p2hActions';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ECommerce: React.FC = () => {
+  const [p2hData, setP2hData] = useState('');
+  const [kkhData, setKkhData] = useState('');
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getAllData();
+        setP2hData(res.p2hData);
+        setKkhData(res.kkhData);
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || 'An error occurred');
+      }
+    };
+    fetch();
+  }, []);
+
   return (
     <DefaultLayout>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-        <CardDataStats title="Total Pengisian P2H" total="30">
+        <CardDataStats title="Total Pengisian P2H" total={p2hData}>
           <svg
             className="fill-primary dark:fill-white"
             width="25"
@@ -48,7 +62,7 @@ const ECommerce: React.FC = () => {
             </g>
           </svg>
         </CardDataStats>
-        <CardDataStats title="Total Pengisian KKH" total="45">
+        <CardDataStats title="Total Pengisian KKH" total={kkhData}>
           <svg
             className="fill-primary dark:fill-white"
             width="25"
@@ -74,6 +88,7 @@ const ECommerce: React.FC = () => {
         <ChartOne />
         <ChartTwo />
       </div>
+      <Toaster position="bottom-right" />
     </DefaultLayout>
   );
 };
