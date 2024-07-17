@@ -17,12 +17,12 @@ const CardDataStats: React.FC<CardDataStatsProps> = ({
         {children}
       </div>
 
-      <div className="mt-4 flex flex-row items-end justify-between">
+      <div className="mt-4 flex flex-row items-end justify-between ml-2">
         <div>
-          <h4 className="text-title-md font-bold text-black dark:text-white">
+          <h4 className="text-title-lg font-bold text-black dark:text-white">
             {total}
           </h4>
-          <span className="text-xl font-medium">{title}</span>
+          <span className="text-sm font-medium">{title}</span>
         </div>
       </div>
     </div>

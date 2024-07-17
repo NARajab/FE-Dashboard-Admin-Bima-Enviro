@@ -1,8 +1,7 @@
 export type Product = {
   name: string;
   date: string;
-  bt: string;
-  wut: string;
+  imageUrl: string;
   tt: string;
   complaint: string;
   foreman: string;

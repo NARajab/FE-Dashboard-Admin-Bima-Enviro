@@ -1,6 +1,8 @@
 import { ApexOptions } from 'apexcharts';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import { getP2hMountly } from '../../api/fetching/p2h/p2hActions';
+import { getKkhMountly } from '../../api/fetching/kkh/kkhActions';
 
 const options: ApexOptions = {
   legend: {
@@ -48,10 +50,6 @@ const options: ApexOptions = {
     width: [2, 2],
     curve: 'straight',
   },
-  // labels: {
-  //   show: false,
-  //   position: "top",
-  // },
   grid: {
     xaxis: {
       lines: {
@@ -84,10 +82,6 @@ const options: ApexOptions = {
   xaxis: {
     type: 'category',
     categories: [
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
       'Jan',
       'Feb',
       'Mar',
@@ -96,6 +90,10 @@ const options: ApexOptions = {
       'Jun',
       'Jul',
       'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ],
     axisBorder: {
       show: false,
@@ -115,34 +113,55 @@ const options: ApexOptions = {
   },
 };
 
-interface ChartOneState {
-  series: {
-    name: string;
-    data: number[];
-  }[];
-}
-
 const ChartOne: React.FC = () => {
-  const [state, setState] = useState<ChartOneState>({
+  const [state, setState] = useState({
     series: [
       {
-        name: 'Product One',
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45],
+        name: 'P2H',
+        data: [] as number[],
       },
-
       {
-        name: 'Product Two',
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
+        name: 'KKH',
+        data: [] as number[],
       },
     ],
   });
 
-  const handleReset = () => {
-    setState((prevState) => ({
-      ...prevState,
-    }));
-  };
-  handleReset;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getP2hMountly();
+        const dataKkh = await getKkhMountly();
+
+        const months = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ];
+        const seriesData = months.map((month) => data[month] || 0);
+        const seriesDataKkh = months.map((month) => dataKkh[month] || 0);
+        setState((prevState) => ({
+          series: [
+            { ...prevState.series[0], data: seriesData },
+            { ...prevState.series[1], data: seriesDataKkh },
+          ],
+        }));
+      } catch (error) {
+        console.error('Error fetching P2H data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
@@ -169,7 +188,7 @@ const ChartOne: React.FC = () => {
         </div>
         <div className="flex w-full max-w-45 justify-end">
           <div className="inline-flex items-center rounded-md bg-whiter p-1.5 dark:bg-meta-4">
-            <p className="rounded py-1 px-3 text-xs font-medium text-black hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
+            <p className="rounded py-1 px-3 text-xs font-medium text-black dark:text-white ">
               Monthly
             </p>
           </div>

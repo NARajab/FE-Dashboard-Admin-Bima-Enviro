@@ -56,12 +56,6 @@ const TableTwo = () => {
               <th className="min-w-[160px] py-4 px-4 font-medium text-black dark:text-white">
                 Tanggal
               </th>
-              <th className="py-4 px-4 font-medium text-black dark:text-white">
-                Jam Tidur
-              </th>
-              <th className="py-4 px-4 font-medium text-black dark:text-white">
-                Bangun Tidur
-              </th>
               <th className="min-w-[100px] py-4 px-4 font-medium text-black dark:text-white">
                 Total Jam
               </th>
@@ -91,21 +85,21 @@ const TableTwo = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
                   <h5 className="font-medium text-black dark:text-white">
-                    {productItem.bt}
-                  </h5>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
-                  <h5 className="font-medium text-black dark:text-white">
-                    {productItem.wut}
-                  </h5>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
-                  <h5 className="font-medium text-black dark:text-white">
                     {productItem.tt}
                   </h5>
                 </td>
                 <td className="border-b border-[#eee] py-4 px-4 pl-9 dark:border-strokedark xl:pl-3">
-                  <h5 className="font-medium text-black dark:text-white">
+                  <h5
+                    className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
+                      productItem.complaint === 'Fit to work'
+                        ? 'bg-success text-success'
+                        : productItem.complaint === 'On Monitoring'
+                        ? 'bg-warning text-warning'
+                        : productItem.complaint === 'Kurang Tidur'
+                        ? 'bg-danger text-danger'
+                        : ''
+                    }`}
+                  >
                     {productItem.complaint}
                   </h5>
                 </td>
@@ -197,29 +191,15 @@ const Modal = ({
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg">
-        <h2 className="text-xl font-semibold mb-4">Package Details</h2>
-        <p>
-          <strong>Nama:</strong> {packageItem.name}
-        </p>
-        <p>
-          <strong>Tanggal:</strong> {packageItem.date}
-        </p>
-        <p>
-          <strong>Jam Tidur:</strong> {packageItem.bt}
-        </p>
-        <p>
-          <strong>Jam Bangun Tidur:</strong> {packageItem.wut}
-        </p>
-        <p>
-          <strong>Total Jam:</strong> {packageItem.tt}
-        </p>
-        <p>
-          <strong>Keluhan:</strong> {packageItem.complaint}
-        </p>
-        <p>
-          <strong>Foreman:</strong> {packageItem.foreman}
-        </p>
+      <div
+        className="bg-white rounded-lg p-6 shadow-lg"
+        style={{ width: '500px', height: '400px' }}
+      >
+        <img
+          className="w-full h-full object-contain mb-4"
+          src={packageItem.imageUrl}
+          alt="image"
+        />
         <button
           className="mt-4 py-2 px-4 bg-primary text-white rounded"
           onClick={onClose}

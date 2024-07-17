@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import TableP2h from './pages/Tables/TableP2h';
 import TableKkh from './pages/Tables/TableKkh';
+import TableUsers from './pages/Tables/TableUsers';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 
@@ -71,7 +72,7 @@ function App() {
         }
       />
       <Route
-        path="/tables/p2h"
+        path="/p2h"
         element={
           <>
             <PageTitle title="Table P2H | Bima Nusa Internasional" />
@@ -80,11 +81,20 @@ function App() {
         }
       />
       <Route
-        path="/tables/kkh"
+        path="/kkh"
         element={
           <>
             <PageTitle title="Table KKH | Bima Nusa Internasional" />
             <TableKkh />
+          </>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <>
+            <PageTitle title="Table Users | Bima Nusa Internasional" />
+            <TableUsers />
           </>
         }
       />

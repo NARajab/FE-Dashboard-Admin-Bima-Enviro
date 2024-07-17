@@ -1,4 +1,4 @@
-import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
+import DefaultLayout from '../../layout/DefaultLayout';
 import CheckboxFive from '../../components/Checkboxes/CheckboxFive';
 import CheckboxFour from '../../components/Checkboxes/CheckboxFour';
 import CheckboxOne from '../../components/Checkboxes/CheckboxOne';
@@ -15,9 +15,7 @@ import MultiSelect from '../../components/Forms/MultiSelect';
 
 const FormElements = () => {
   return (
-    <>
-      <Breadcrumb pageName="Form Elements" />
-
+    <DefaultLayout>
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
         <div className="flex flex-col gap-9">
           {/* <!-- Input Fields --> */}
@@ -198,7 +196,7 @@ const FormElements = () => {
           </div>
         </div>
       </div>
-    </>
+    </DefaultLayout>
   );
 };
 

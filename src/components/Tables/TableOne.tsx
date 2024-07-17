@@ -1,31 +1,51 @@
 import { useEffect, useState } from 'react';
-import { Package } from '../../types/package';
 import { SimplePagination } from '../Pagination';
-import dataPackage from '../../data/packageData.json';
+import { getAllP2h } from '../../api/fetching/p2h/p2hActions';
 
 const TableOne = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const [packageData, setPackageData] = useState<Package[]>([]);
-  const [data, setData] = useState(packageData);
+  const [packageData, setPackageData] = useState<
+    Array<{
+      id: number;
+      name: string;
+      userId: number;
+      p2hId: number;
+      dValidation: string | null;
+      // Sesuaikan dengan properti yang ada di objek P2h Anda
+    }>
+  >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
 
   useEffect(() => {
-    setPackageData(dataPackage.packageData);
+    const fetchData = async () => {
+      try {
+        const response = await getAllP2h();
+        setPackageData(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handlePageChange = (selectedPage: number) => {
     setCurrentPage(selectedPage);
   };
 
-  const handleValidateAdmin = (index: number) => {
-    const newData = [...data];
-    newData[index].admin = 'Validated';
-    setData(newData);
-  };
+  // const handleValidateAdmin = (index: number) => {
+  //   const newData = [...data];
+  //   newData[index].admin = 'Validated';
+  //   setData(newData);
+  // };
 
-  const handleOpenModal = (packageItem: Package) => {
+  // const handlePageChange = (selectedPage: number) => {
+  //   setCurrentPage(selectedPage);
+  // };
+
+  const handleOpenModal = (packageItem: any) => {
     setSelectedPackage(packageItem);
     setIsModalOpen(true);
   };
@@ -136,7 +156,7 @@ const TableOne = () => {
                     </button>
                     <button
                       className="hover:text-primary"
-                      onClick={() => handleValidateAdmin(index + offset)}
+                      // onClick={() => handleValidateAdmin(index + offset)}
                     >
                       <svg
                         className="fill-current"
@@ -171,45 +191,76 @@ const TableOne = () => {
           onPageChange={handlePageChange}
         />
       </div>
-      {isModalOpen && selectedPackage && (
+      {/* {isModalOpen && selectedPackage && (
         <Modal packageItem={selectedPackage} onClose={handleCloseModal} />
-      )}
+      )} */}
     </div>
   );
 };
 
 const Modal = ({
-  packageItem,
+  // packageItem,
   onClose,
 }: {
-  packageItem: Package;
+  // packageItem: Package;
   onClose: () => void;
 }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg">
+      <div className="dark:bg-graydark bg-white  rounded-lg p-6 shadow-lg max-w-full">
         <h2 className="text-xl font-semibold mb-4">Package Details</h2>
-        <p>
-          <strong>Name:</strong> {packageItem.name}
-        </p>
-        <p>
-          <strong>Invoice Date:</strong> {packageItem.invoiceDate}
-        </p>
-        <p>
-          <strong>Code Unit:</strong> {packageItem.codeUnit}
-        </p>
-        <p>
-          <strong>Admin:</strong> {packageItem.admin}
-        </p>
-        <p>
-          <strong>Status:</strong> {packageItem.status}
-        </p>
-        <button
-          className="mt-4 py-2 px-4 bg-primary text-white rounded"
-          onClick={onClose}
-        >
-          Close
-        </button>
+        <table className="w-full table-auto">
+          <tbody>
+            <tr>
+              <td className="py-2 px-4 font-medium text-black dark:text-white">
+                <strong>Name:</strong>
+              </td>
+              <td className="py-2 px-4 text-black dark:text-white">
+                {/* {packageItem.name} */}
+              </td>
+            </tr>
+            <tr>
+              <td className="py-2 px-4 font-medium text-black dark:text-white">
+                <strong>Invoice Date:</strong>
+              </td>
+              <td className="py-2 px-4 text-black dark:text-white">
+                {/* {packageItem.invoiceDate} */}
+              </td>
+            </tr>
+            <tr>
+              <td className="py-2 px-4 font-medium text-black dark:text-white">
+                <strong>Code Unit:</strong>
+              </td>
+              <td className="py-2 px-4 text-black dark:text-white">
+                {/* {packageItem.codeUnit} */}
+              </td>
+            </tr>
+            <tr>
+              <td className="py-2 px-4 font-medium text-black dark:text-white">
+                <strong>Admin:</strong>
+              </td>
+              <td className="py-2 px-4 text-black dark:text-white">
+                {/* {packageItem.admin} */}
+              </td>
+            </tr>
+            <tr>
+              <td className="py-2 px-4 font-medium text-black dark:text-white">
+                <strong>Status:</strong>
+              </td>
+              <td className="py-2 px-4 text-black dark:text-white">
+                {/* {packageItem.status} */}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div className="mt-4 flex justify-end">
+          <button
+            className="py-2 px-4 bg-primary text-white rounded"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
