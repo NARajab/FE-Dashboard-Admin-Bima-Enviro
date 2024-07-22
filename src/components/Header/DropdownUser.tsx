@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
-import UserOne from '../../images/user/user-01.png';
+import { getMeResponse } from '../../api/fetching/auth/authActions';
 
-const DropdownUser = () => {
+interface DropdownUserProps {
+  user: getMeResponse['data'] | null;
+}
+
+const DropdownUser: React.FC<DropdownUserProps> = ({ user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -15,13 +19,17 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Name
+            {user?.name}
           </span>
-          <span className="block text-xs">Admin</span>
+          <span className="block text-xs">{user?.role}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
-          <img src={UserOne} alt="User" />
+        <span className="h-12 w-12 rounded-full  object-cover">
+          <img
+            src={user?.imageUrl}
+            alt="User"
+            className="h-12 w-12 rounded-full  object-cover"
+          />
         </span>
       </Link>
 

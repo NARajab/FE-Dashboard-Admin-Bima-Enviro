@@ -1,15 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Users } from '../../types/users';
+import { User } from '../../api/fetching/users/type';
 import { SimplePagination } from '../Pagination';
-import dataUser from '../../data/userData.json';
+import { getAllUser } from '../../api/fetching/users/userAction';
 
 const TableThree = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  const [userData, setUserData] = useState<Users[]>([]);
+  const [userData, setUserData] = useState<User[]>([]);
 
   useEffect(() => {
-    return setUserData(dataUser.userData);
+    const fetchData = async () => {
+      try {
+        const response = await getAllUser();
+        setUserData(response.users);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   const handlePageChange = (selectedPage: number) => {
@@ -31,6 +39,9 @@ const TableThree = () => {
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
+              <th className=" py-2 px-2 font-medium text-center flex justify-center text-black dark:text-white">
+                #
+              </th>
               <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Nama
               </th>
@@ -51,6 +62,13 @@ const TableThree = () => {
           <tbody>
             {currentItems.map((userItem, index) => (
               <tr key={index}>
+                <td className="border-b border-[#eee] py-5 px-4 flex items-center justify-center pl-9 dark:border-strokedark xl:pl-3">
+                  <img
+                    src={userItem.imageUrl}
+                    className="w-12 h-12 rounded-full object-cover"
+                    alt={userItem.name}
+                  />
+                </td>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
                   <h5 className="font-medium text-black dark:text-white">
                     {userItem.name}
@@ -63,7 +81,7 @@ const TableThree = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
                   <h5 className="font-medium text-black dark:text-white">
-                    {userItem.email}
+                    {userItem.Auth.email}
                   </h5>
                 </td>
                 <td className="border-b border-[#eee] py-4 px-4 pl-9 dark:border-strokedark xl:pl-3">

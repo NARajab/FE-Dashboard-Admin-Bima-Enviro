@@ -1,6 +1,119 @@
-import userThree from '../images/user/user-03.png';
 import DefaultLayout from '../layout/DefaultLayout';
+import {
+  getMe,
+  getMeResponse,
+  changePassword,
+} from '../api/fetching/auth/authActions';
+import { ChangePassword } from '../api/fetching/auth/type';
+import { updateUserData } from '../api/fetching/users/userAction';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
+
 const Settings = () => {
+  const [userData, setUserData] = useState<getMeResponse['data'] | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    phoneNumber: '',
+    email: '',
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await getMe();
+        setUserData(response.data);
+        setFormData({
+          username: response.data.username,
+          phoneNumber: response.data.phoneNumber,
+          email: response.data.email,
+        });
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const updateData = {
+      id: userData?.id,
+      name: formData.username,
+      username: formData.username,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email,
+      imageUrl: file,
+    };
+    toast
+      .promise(updateUserData(updateData), {
+        loading: 'Saving...',
+        success: <b>Updated successfully!</b>,
+        error: <b>Could not update.</b>,
+      })
+
+      .then((updatedUserData) => {
+        if (updatedUserData.user) {
+          setUserData(updatedUserData.user);
+          setFile(null);
+          console.log('Updated user data:', updatedUserData);
+        } else {
+          console.error('No data returned from updateUserData');
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating user data:', error);
+      });
+  };
+
+  const handleChangePassword = async (event: FormEvent) => {
+    event.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Password confirmation does not match.');
+      return;
+    }
+
+    const changePassData: ChangePassword = {
+      password,
+      newPassword,
+      confirmPassword,
+    };
+
+    toast
+      .promise(changePassword(changePassData), {
+        loading: 'Saving...',
+        success: <b>Updated successfully!</b>,
+        error: <b>Could not update.</b>,
+      })
+      .then((response) => {
+        console.log(response.message);
+        setPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      })
+      .catch((error) => {
+        console.error('Error updating password:', error);
+      });
+  };
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-270">
@@ -13,7 +126,7 @@ const Settings = () => {
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+                <form onSubmit={handleSubmit}>
                   <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
                     <div className="mb-4 flex flex-col w-full sm:w-1/2 justify-center items-center gap-3">
                       <div>
@@ -21,9 +134,15 @@ const Settings = () => {
                           Edit your photo
                         </span>
                       </div>
-                      <div className="h-20 w-20 rounded-full">
-                        <img src={userThree} alt="User" />
-                      </div>
+                      {userData && userData.imageUrl && (
+                        <div className="h-20 w-20 rounded-full">
+                          <img
+                            src={userData?.imageUrl}
+                            className="h-20 w-20 rounded-full object-cover"
+                            alt="User"
+                          />
+                        </div>
+                      )}
                     </div>
                     <div
                       id="FileUpload"
@@ -32,6 +151,7 @@ const Settings = () => {
                       <input
                         type="file"
                         accept="image/*"
+                        onChange={handleFileChange}
                         className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
                       />
                       <div className="flex flex-col items-center justify-center space-y-3">
@@ -73,7 +193,7 @@ const Settings = () => {
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
                         htmlFor="fullName"
                       >
-                        Full Name
+                        Username
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">
@@ -104,10 +224,10 @@ const Settings = () => {
                         <input
                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           type="text"
-                          name="fullName"
-                          id="fullName"
-                          placeholder="Devid Jhon"
-                          defaultValue="Devid Jhon"
+                          name="username"
+                          id="username"
+                          value={formData.username}
+                          onChange={handleChange}
                         />
                       </div>
                     </div>
@@ -124,8 +244,8 @@ const Settings = () => {
                         type="text"
                         name="phoneNumber"
                         id="phoneNumber"
-                        placeholder="+990 3343 7865"
-                        defaultValue="+990 3343 7865"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -166,29 +286,12 @@ const Settings = () => {
                       <input
                         className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                         type="email"
-                        name="emailAddress"
-                        id="emailAddress"
-                        placeholder="devidjond45@gmail.com"
-                        defaultValue="devidjond45@gmail.com"
+                        name="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
                       />
                     </div>
-                  </div>
-
-                  <div className="mb-5.5">
-                    <label
-                      className="mb-3 block text-sm font-medium text-black dark:text-white"
-                      htmlFor="Username"
-                    >
-                      Username
-                    </label>
-                    <input
-                      className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
-                      name="Username"
-                      id="Username"
-                      placeholder="devidjhon24"
-                      defaultValue="devidjhon24"
-                    />
                   </div>
 
                   <div className="flex justify-end gap-4.5">
@@ -217,7 +320,7 @@ const Settings = () => {
                 </h3>
               </div>
               <div className="p-7">
-                <form action="#">
+                <form onSubmit={handleChangePassword}>
                   <div className="mb-5.5">
                     <label
                       className="mb-3 block text-sm font-medium text-black dark:text-white"
@@ -227,9 +330,11 @@ const Settings = () => {
                     </label>
                     <input
                       className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
+                      type="password"
                       name="Password"
                       id="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                   <div className="mb-5.5">
@@ -241,9 +346,11 @@ const Settings = () => {
                     </label>
                     <input
                       className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
+                      type="password"
                       name="Password"
                       id="Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                     />
                   </div>
                   <div className="mb-5.5">
@@ -255,9 +362,11 @@ const Settings = () => {
                     </label>
                     <input
                       className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                      type="text"
+                      type="password"
                       name="Password"
                       id="Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                   </div>
 
@@ -280,6 +389,26 @@ const Settings = () => {
             </div>
           </div>
         </div>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          gutter={8}
+          containerClassName=""
+          containerStyle={{}}
+          toastOptions={{
+            className: '',
+            duration: 3000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+
+            // Default options for specific types
+            success: {
+              duration: 3000,
+            },
+          }}
+        />
       </div>
     </DefaultLayout>
   );

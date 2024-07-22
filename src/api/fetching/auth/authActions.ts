@@ -1,5 +1,5 @@
 import api from '../../url_api';
-import { Login, SendEmail, ResetPassword } from './type';
+import { Login, SendEmail, ResetPassword, ChangePassword } from './type';
 
 interface LoginResponse {
   token: string;
@@ -14,11 +14,39 @@ export const login = async (authData: Login): Promise<LoginResponse> => {
       password: authData.password,
     });
 
-    localStorage.setItem('token', res.data.token);
+    sessionStorage.setItem('token', res.data.token);
     return res.data;
   } catch (err) {
     console.error('Login error:', err);
     throw err;
+  }
+};
+
+export interface getMeResponse {
+  status: string;
+  data: {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    phoneNumber: string;
+    imageUrl: string;
+    role: string;
+  };
+}
+
+export const getMe = async (): Promise<getMeResponse> => {
+  try {
+    const token = sessionStorage.getItem('token');
+    const res = await api.get('/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Get me error:', error);
+    throw error;
   }
 };
 
@@ -56,6 +84,35 @@ export const resetPassword = async (
     return res.data;
   } catch (error) {
     console.error('Reset password error:', error);
+    throw error;
+  }
+};
+
+interface ChangePasswordResponse {
+  message: string;
+}
+
+export const changePassword = async (
+  changePassData: ChangePassword,
+): Promise<ChangePasswordResponse> => {
+  try {
+    const token = sessionStorage.getItem('token');
+    const res = await api.patch(
+      '/auth/change-password',
+      {
+        password: changePassData.password,
+        newPassword: changePassData.newPassword,
+        confirmPassword: changePassData.confirmPassword,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return res.data;
+  } catch (error) {
+    console.error('Change password error:', error);
     throw error;
   }
 };

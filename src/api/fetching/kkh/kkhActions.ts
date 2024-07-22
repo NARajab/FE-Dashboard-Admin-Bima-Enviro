@@ -28,3 +28,43 @@ export const getKkhWeekly = async (): Promise<KkhWeeklyResponse> => {
     throw err;
   }
 };
+
+interface KkhResponse {
+  status: string;
+  kkh: {
+    id: number;
+    userId: number;
+    date: string;
+    afterworktime: string | null;
+    bedtime: string | null;
+    wakeuptime: string | null;
+    totaltime: string;
+    departuretime: string | null;
+    complaint: string;
+    wValidation: boolean | null;
+    fValidation: boolean | null;
+    imageUrl: string;
+    updatedAt: string;
+    createdAt: string;
+    User: {
+      id: number;
+      name: string;
+      phoneNumber: string;
+      imageUrl: string | null;
+      role: string;
+      isVerified: boolean;
+      createdAt: string;
+      updatedAt: string;
+    };
+  }[];
+}
+
+export const getAllKkh = async (): Promise<KkhResponse> => {
+  try {
+    const res = await api.get('/kkh');
+    return res.data;
+  } catch (err) {
+    console.error('Get KKH error:', err);
+    throw err;
+  }
+};

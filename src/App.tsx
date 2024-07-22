@@ -18,8 +18,10 @@ import TableKkh from './pages/Tables/TableKkh';
 import TableUsers from './pages/Tables/TableUsers';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
+import HandleLogout from './pages/HandleLogout';
 
 function App() {
+  HandleLogout();
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
 
