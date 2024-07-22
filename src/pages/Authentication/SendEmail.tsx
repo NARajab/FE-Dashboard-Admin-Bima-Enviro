@@ -10,11 +10,11 @@ const SignUp: React.FC = () => {
 
   const handleSendEmail = async () => {
     try {
-      const res = await sendEmail({
-        email,
+      toast.promise(sendEmail({ email }), {
+        loading: 'Mengirim email...',
+        success: <b>Email berhasil dikirim!</b>,
+        error: <b>Gagal mengirim email.</b>,
       });
-
-      toast.success(res.message);
     } catch (err: any) {
       console.error('Login error:', err);
       toast.error(err.response?.data?.message || 'An error occurred');

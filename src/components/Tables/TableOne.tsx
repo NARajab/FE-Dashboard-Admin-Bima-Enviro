@@ -1,28 +1,23 @@
 import { useEffect, useState } from 'react';
 import { SimplePagination } from '../Pagination';
-import { getAllP2h } from '../../api/fetching/p2h/p2hActions';
+import { getAllP2h, validateAdmin } from '../../api/fetching/p2h/p2hActions';
+import { P2h } from '../../api/fetching/p2h/type';
+import toast, { Toaster } from 'react-hot-toast';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const TableOne = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const [packageData, setPackageData] = useState<
-    Array<{
-      id: number;
-      name: string;
-      userId: number;
-      p2hId: number;
-      dValidation: string | null;
-      // Sesuaikan dengan properti yang ada di objek P2h Anda
-    }>
-  >([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+  const [packageData, setPackageData] = useState<P2h[]>([]);
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [filteredData, setFilteredData] = useState<P2h[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getAllP2h();
-        setPackageData(response);
+        setPackageData(response.p2h);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -31,41 +26,84 @@ const TableOne = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (filterDate) {
+      // Format tanggal yang dipilih ke dalam format yang sesuai dengan createdAt
+      const selectedDateString = flatpickr.formatDate(filterDate, 'Y-m-d');
+
+      // Filter data berdasarkan createdAt
+      const filtered = packageData.filter((item) =>
+        item.createdAt.includes(selectedDateString),
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(packageData);
+    }
+  }, [filterDate, packageData]);
+
+  const handleFilterChange = (selectedDates: Date[]) => {
+    if (selectedDates.length > 0) {
+      setFilterDate(selectedDates[0]);
+    } else {
+      setFilterDate(null);
+    }
+  };
+
   const handlePageChange = (selectedPage: number) => {
     setCurrentPage(selectedPage);
   };
 
-  // const handleValidateAdmin = (index: number) => {
-  //   const newData = [...data];
-  //   newData[index].admin = 'Validated';
-  //   setData(newData);
-  // };
+  const handleValidateAdmin = async (index: number) => {
+    try {
+      const p2hData = packageData[index];
+      const response = await validateAdmin(p2hData);
+      toast.success(response.message);
 
-  // const handlePageChange = (selectedPage: number) => {
-  //   setCurrentPage(selectedPage);
-  // };
+      const updatedPackageData = [...packageData];
+      updatedPackageData[index].aValidation = true;
 
-  const handleOpenModal = (packageItem: any) => {
-    setSelectedPackage(packageItem);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedPackage(null);
+      setPackageData(updatedPackageData);
+    } catch (error) {
+      console.error('Error validating admin:', error);
+      toast.error('Failed to validate admin');
+    }
   };
 
   const offset = (currentPage - 1) * itemsPerPage;
-  const currentItems = packageData.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(packageData.length / itemsPerPage);
+  const currentItems = filteredData.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-1 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="max-w-full overflow-x-auto">
-        <div className="py-4 px-4 md:px-6 xl:px-7.5">
+        <div className="py-4 px-4 md:px-6 xl:px-7.5 flex justify-between">
           <h4 className="text-xl font-semibold text-black dark:text-white">
             Data Pengisian Pelaksanaan Perawatan Harian (P2H)
           </h4>
+          <div>
+            <label htmlFor="filterDate" className="mr-2 font-medium">
+              Filter by Date:
+            </label>
+            <input
+              id="filterDate"
+              className="border border-gray-300 rounded px-3 py-1"
+              onChange={(e) => {
+                const selectedDate = e.target.value;
+                if (selectedDate) {
+                  const dateObject = new Date(selectedDate);
+                  handleFilterChange([dateObject]);
+                } else {
+                  handleFilterChange([]);
+                }
+              }}
+              value={
+                filterDate
+                  ? flatpickr.formatDate(filterDate, 'YYYY-MM-DD HH:MM')
+                  : ''
+              }
+              type="date"
+            />
+          </div>
         </div>
         <table className="w-full table-auto">
           <thead>
@@ -77,6 +115,9 @@ const TableOne = () => {
                 Date
               </th>
               <th className="py-4 px-4 font-medium text-black dark:text-white">
+                Unit
+              </th>
+              <th className="py-4 px-4 font-medium text-black dark:text-white">
                 Code Unit
               </th>
               <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
@@ -85,14 +126,14 @@ const TableOne = () => {
               <th className="py-4 px-4 font-medium text-black dark:text-white">
                 Admin
               </th>
-              <th className="py-4 px-4 font-medium text-black dark:text-white">
+              <th className="py-4 px-3 text-center font-medium text-black dark:text-white ">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody>
             {currentItems.map((packageItem, index) => (
-              <tr key={index}>
+              <tr key={packageItem.id}>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                   <h5 className="font-medium text-black dark:text-white">
                     {packageItem.name}
@@ -100,63 +141,46 @@ const TableOne = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p className="text-black dark:text-white">
-                    {packageItem.invoiceDate}
+                    {packageItem.P2h.date}
                   </p>
+                </td>
+                <td className="border-b border-[#eee] py-4 px-4 dark:border-strokedark ">
+                  <h5 className="font-medium text-black dark:text-white">
+                    {packageItem.P2h?.Vehicle?.type}
+                  </h5>
                 </td>
                 <td className="border-b border-[#eee] py-4 px-4 pl-9 dark:border-strokedark xl:pl-9">
                   <h5 className="font-medium text-black dark:text-white">
-                    {packageItem.codeUnit}
+                    {packageItem.P2h.nou}
                   </h5>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p
                     className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      packageItem.status === 'Validated'
+                      packageItem.fValidation
                         ? 'bg-success text-success'
                         : 'bg-danger text-danger'
                     }`}
                   >
-                    {packageItem.status}
+                    {packageItem.fValidation ? 'Validated' : 'Not Validated'}
                   </p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p
                     className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      packageItem.admin === 'Validated'
+                      packageItem.aValidation
                         ? 'bg-success text-success'
                         : 'bg-danger text-danger'
                     }`}
                   >
-                    {packageItem.admin}
+                    {packageItem.aValidation ? 'Validated' : 'Not Validated'}
                   </p>
                 </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <div className="flex items-center space-x-3.5">
+                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark text-center">
+                  <div className="flex items-center justify-center">
                     <button
                       className="hover:text-primary"
-                      onClick={() => handleOpenModal(packageItem)}
-                    >
-                      <svg
-                        className="fill-current"
-                        width="21"
-                        height="21"
-                        viewBox="0 0 18 18"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M8.99981 14.8219C3.43106 14.8219 0.674805 9.50624 0.562305 9.28124C0.47793 9.11249 0.47793 8.88749 0.562305 8.71874C0.674805 8.49374 3.43106 3.20624 8.99981 3.20624C14.5686 3.20624 17.3248 8.49374 17.4373 8.71874C17.5217 8.88749 17.5217 9.11249 17.4373 9.28124C17.3248 9.50624 14.5686 14.8219 8.99981 14.8219ZM1.85605 8.99999C2.4748 10.0406 4.89356 13.5562 8.99981 13.5562C13.1061 13.5562 15.5248 10.0406 16.1436 8.99999C15.5248 7.95936 13.1061 4.44374 8.99981 4.44374C4.89356 4.44374 2.4748 7.95936 1.85605 8.99999Z"
-                          fill=""
-                        />
-                        <path
-                          d="M9 11.3906C7.67812 11.3906 6.60938 10.3219 6.60938 9C6.60938 7.67813 7.67812 6.60938 9 6.60938C10.3219 6.60938 11.3906 7.67813 11.3906 9C11.3906 10.3219 10.3219 11.3906 9 11.3906ZM9 7.87499C8.26562 7.87499 7.875 8.26562 7.875 8.99999C7.875 9.73437 8.26562 10.125 9 10.125C9.73438 10.125 10.125 9.73437 10.125 8.99999C10.125 8.26562 9.73438 7.87499 9 7.87499Z"
-                          fill=""
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      className="hover:text-primary"
-                      // onClick={() => handleValidateAdmin(index + offset)}
+                      onClick={() => handleValidateAdmin(index + offset)}
                     >
                       <svg
                         className="fill-current"
@@ -191,77 +215,26 @@ const TableOne = () => {
           onPageChange={handlePageChange}
         />
       </div>
-      {/* {isModalOpen && selectedPackage && (
-        <Modal packageItem={selectedPackage} onClose={handleCloseModal} />
-      )} */}
-    </div>
-  );
-};
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        gutter={8}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          className: '',
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
 
-const Modal = ({
-  // packageItem,
-  onClose,
-}: {
-  // packageItem: Package;
-  onClose: () => void;
-}) => {
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="dark:bg-graydark bg-white  rounded-lg p-6 shadow-lg max-w-full">
-        <h2 className="text-xl font-semibold mb-4">Package Details</h2>
-        <table className="w-full table-auto">
-          <tbody>
-            <tr>
-              <td className="py-2 px-4 font-medium text-black dark:text-white">
-                <strong>Name:</strong>
-              </td>
-              <td className="py-2 px-4 text-black dark:text-white">
-                {/* {packageItem.name} */}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-2 px-4 font-medium text-black dark:text-white">
-                <strong>Invoice Date:</strong>
-              </td>
-              <td className="py-2 px-4 text-black dark:text-white">
-                {/* {packageItem.invoiceDate} */}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-2 px-4 font-medium text-black dark:text-white">
-                <strong>Code Unit:</strong>
-              </td>
-              <td className="py-2 px-4 text-black dark:text-white">
-                {/* {packageItem.codeUnit} */}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-2 px-4 font-medium text-black dark:text-white">
-                <strong>Admin:</strong>
-              </td>
-              <td className="py-2 px-4 text-black dark:text-white">
-                {/* {packageItem.admin} */}
-              </td>
-            </tr>
-            <tr>
-              <td className="py-2 px-4 font-medium text-black dark:text-white">
-                <strong>Status:</strong>
-              </td>
-              <td className="py-2 px-4 text-black dark:text-white">
-                {/* {packageItem.status} */}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div className="mt-4 flex justify-end">
-          <button
-            className="py-2 px-4 bg-primary text-white rounded"
-            onClick={onClose}
-          >
-            Close
-          </button>
-        </div>
-      </div>
+          // Default options for specific types
+          success: {
+            duration: 3000,
+          },
+        }}
+      />
     </div>
   );
 };

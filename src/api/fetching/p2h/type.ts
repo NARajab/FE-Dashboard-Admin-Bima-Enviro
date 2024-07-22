@@ -1,0 +1,53 @@
+export type P2h = {
+  id: number;
+  name: string;
+  userId: number;
+  p2hId: number;
+  dValidation: boolean;
+  mValidation: boolean;
+  fValidation: boolean;
+  aValidation: boolean;
+  createdAt: string;
+  updatedAt: string;
+  P2h: {
+    id: number;
+    idVehicle: number;
+    idAroundUnit: number;
+    idInTheCabin: number;
+    idMachineRoom: number;
+    idLocation: number | null;
+    ntsAroundU: string | null;
+    ntsInTheCabinU: string | null;
+    ntsMachineRoom: string | null;
+    modelu: string;
+    nou: string;
+    date: string;
+    shift: string;
+    time: string;
+    earlyhm: string;
+    endhm: string;
+    earlykm: string | null;
+    endkm: string | null;
+    kbj: string;
+    jobsite: string | null;
+    location: string | null;
+    createdAt: string;
+    updatedAt: string;
+    Vehicle: {
+      id: number;
+      type: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+  };
+  User: {
+    id: number;
+    name: string;
+    phoneNumber: string;
+    imageUrl: string | null;
+    role: string;
+    isVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+};

@@ -1,31 +1,59 @@
 import { useEffect, useState } from 'react';
-import { Product } from '../../types/product';
 import { SimplePagination } from '../Pagination';
-import dataProduct from '../../data/productData.json';
+import { getAllKkh } from '../../api/fetching/kkh/kkhActions';
+import { Kkh } from '../../api/fetching/kkh/type';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const TableTwo = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const [productData, setProductData] = useState<Product[]>([]);
-  const [data, setData] = useState(productData);
+  const itemsPerPage = 6;
+  const [productData, setProductData] = useState<Kkh[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<Product | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<Kkh | null>(null);
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [filteredData, setFilteredData] = useState<Kkh[]>([]);
 
   useEffect(() => {
-    setProductData(dataProduct.productData);
+    const fetchData = async () => {
+      try {
+        const response = await getAllKkh();
+        setProductData(response.kkh);
+        console.log('Fetched data:', response.kkh);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    if (filterDate) {
+      const selectedDateString = flatpickr.formatDate(filterDate, 'Y-m-d');
+
+      // Filter data berdasarkan createdAt
+      const filtered = productData.filter((item) =>
+        item.createdAt.includes(selectedDateString),
+      );
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(productData);
+    }
+  }, [filterDate, productData]);
+
+  const handleFilterChange = (selectedDates: Date[]) => {
+    if (selectedDates.length > 0) {
+      setFilterDate(selectedDates[0]);
+    } else {
+      setFilterDate(null);
+    }
+  };
 
   const handlePageChange = (selectedPage: number) => {
     setCurrentPage(selectedPage);
   };
 
-  const handleValidateForeman = (index: number) => {
-    const newData = [...data];
-    newData[index].foreman = 'Validated';
-    setData(newData);
-  };
-
-  const handleOpenModal = (packageItem: Product) => {
+  const handleOpenModal = (packageItem: Kkh) => {
     setSelectedPackage(packageItem);
     setIsModalOpen(true);
   };
@@ -36,36 +64,60 @@ const TableTwo = () => {
   };
 
   const offset = (currentPage - 1) * itemsPerPage;
-  const currentItems = productData.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(productData.length / itemsPerPage);
+  const currentItems = filteredData.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <div className="rounded-sm border border-stroke bg-white px-5 pt-1 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
       <div className="max-w-full overflow-x-auto">
-        <div className="py-4 px-4 md:px-6 xl:px-7.5">
+        <div className="py-4 px-4 md:px-6 xl:px-7.5 flex justify-between">
           <h4 className="text-xl font-semibold text-black dark:text-white">
             Data Pengisian Kesiapan Kerja Harian (KKH)
           </h4>
+          <div>
+            <label htmlFor="filterDate" className="mr-2 font-medium">
+              Filter by Date:
+            </label>
+            <input
+              id="filterDate"
+              className="border border-gray-300 rounded px-3 py-1"
+              onChange={(e) => {
+                const selectedDate = e.target.value;
+                if (selectedDate) {
+                  const dateObject = new Date(selectedDate);
+                  handleFilterChange([dateObject]);
+                } else {
+                  handleFilterChange([]);
+                }
+              }}
+              value={
+                filterDate
+                  ? flatpickr.formatDate(filterDate, 'YYYY-MM-DD HH:MM')
+                  : ''
+              }
+              type="date"
+            />
+          </div>
         </div>
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
-              <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Nama
               </th>
-              <th className="min-w-[160px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Tanggal
               </th>
-              <th className="min-w-[100px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Total Jam
               </th>
-              <th className="min-w-[170px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Keluhan
               </th>
-              <th className="min-w-[170px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className=" py-4 px-4 font-medium text-black dark:text-white">
                 Foreman
               </th>
-              <th className="min-w-[170px] py-4 px-4 font-medium text-black dark:text-white">
+              <th className="py-4 px-4 flex justify-center text-center font-medium text-black dark:text-white">
                 Actions
               </th>
             </tr>
@@ -75,7 +127,7 @@ const TableTwo = () => {
               <tr key={index}>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
                   <h5 className="font-medium text-black dark:text-white">
-                    {productItem.name}
+                    {productItem.User.name}
                   </h5>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
@@ -85,7 +137,7 @@ const TableTwo = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-3">
                   <h5 className="font-medium text-black dark:text-white">
-                    {productItem.tt}
+                    {productItem.totaltime}
                   </h5>
                 </td>
                 <td className="border-b border-[#eee] py-4 px-4 pl-9 dark:border-strokedark xl:pl-3">
@@ -106,15 +158,15 @@ const TableTwo = () => {
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p
                     className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      productItem.foreman === 'Validated'
+                      productItem.fValidation
                         ? 'bg-success text-success'
                         : 'bg-danger text-danger'
                     }`}
                   >
-                    {productItem.foreman}
+                    {productItem.fValidation ? 'Validated' : 'Not Validated'}
                   </p>
                 </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark flex justify-center text-center">
                   <div className="flex items-center space-x-3.5">
                     <button
                       className="hover:text-primary"
@@ -136,29 +188,6 @@ const TableTwo = () => {
                           d="M9 11.3906C7.67812 11.3906 6.60938 10.3219 6.60938 9C6.60938 7.67813 7.67812 6.60938 9 6.60938C10.3219 6.60938 11.3906 7.67813 11.3906 9C11.3906 10.3219 10.3219 11.3906 9 11.3906ZM9 7.87499C8.26562 7.87499 7.875 8.26562 7.875 8.99999C7.875 9.73437 8.26562 10.125 9 10.125C9.73438 10.125 10.125 9.73437 10.125 8.99999C10.125 8.26562 9.73438 7.87499 9 7.87499Z"
                           fill=""
                         />
-                      </svg>
-                    </button>
-                    <button
-                      className="hover:text-primary"
-                      onClick={() => handleValidateForeman(index + offset)}
-                    >
-                      <svg
-                        className="fill-current"
-                        width="21"
-                        height="21"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 64 64"
-                      >
-                        <g>
-                          <path
-                            d="M32,1.8C15.3,1.8,1.8,15.3,1.8,32S15.3,62.3,32,62.3S62.3,48.7,62.3,32S48.7,1.8,32,1.8z M32,57.8
-                            C17.8,57.8,6.3,46.2,6.3,32C6.3,17.8,17.8,6.3,32,6.3c14.2,0,25.8,11.6,25.8,25.8C57.8,46.2,46.2,57.8,32,57.8z"
-                          />
-                          <path
-                            d="M40.6,22.7L28.7,34.3L23.3,29c-0.9-0.9-2.3-0.8-3.2,0c-0.9,0.9-0.8,2.3,0,3.2l6.4,6.2c0.6,0.6,1.4,0.9,2.2,0.9
-                            c0.8,0,1.6-0.3,2.2-0.9L43.8,26c0.9-0.9,0.9-2.3,0-3.2S41.5,21.9,40.6,22.7z"
-                          />
-                        </g>
                       </svg>
                     </button>
                   </div>
@@ -186,7 +215,7 @@ const Modal = ({
   packageItem,
   onClose,
 }: {
-  packageItem: Product;
+  packageItem: Kkh;
   onClose: () => void;
 }) => {
   return (

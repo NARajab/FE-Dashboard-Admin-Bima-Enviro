@@ -12,3 +12,9 @@ export type ResetPassword = {
   newPassword: string;
   token: string;
 };
+
+export type ChangePassword = {
+  password: string;
+  newPassword: string;
+  confirmPassword: string;
+};
