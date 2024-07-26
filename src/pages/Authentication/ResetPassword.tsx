@@ -8,12 +8,10 @@ import { resetPassword } from '../../api/fetching/auth/authActions';
 const SignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  // const { token } = useParams();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const token = searchParams.get('token');
 
-  // console.log(location.search);
   const handleReset = async () => {
     try {
       console.log('token', token);
@@ -31,7 +29,7 @@ const SignUp: React.FC = () => {
       });
       toast.success(res.message);
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = '/success-message';
       }, 3000);
     } catch (err: any) {
       console.error('Reset password error:', err);

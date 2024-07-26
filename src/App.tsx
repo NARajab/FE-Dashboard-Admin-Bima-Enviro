@@ -6,6 +6,7 @@ import PageTitle from './components/PageTitle';
 import SignIn from './pages/Authentication/SignIn';
 import SendEmail from './pages/Authentication/SendEmail';
 import ResetPassword from './pages/Authentication/ResetPassword';
+import SuccessMessage from './pages/ReturnPage';
 import Calendar from './pages/Calendar';
 import Chart from './pages/Chart';
 import P2hKkh from './pages/Dashboard/P2hKkh';
@@ -59,8 +60,17 @@ function App() {
         path="/reset-password"
         element={
           <>
-            <PageTitle title="Reset Password | Bima Nusa Internasional" />
+            <PageTitle title="Reset Password" />
             <ResetPassword />
+          </>
+        }
+      />
+      <Route
+        path="/success-message"
+        element={
+          <>
+            <PageTitle title="Success Message" />
+            <SuccessMessage />
           </>
         }
       />
