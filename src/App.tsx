@@ -15,6 +15,7 @@ import FormLayout from './pages/Form/FormLayout';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import TableP2h from './pages/Tables/TableP2h';
+import TableTm from './pages/Tables/TableTm';
 import TableKkh from './pages/Tables/TableKkh';
 import TableUsers from './pages/Tables/TableUsers';
 import Alerts from './pages/UiElements/Alerts';
@@ -89,6 +90,15 @@ function App() {
           <>
             <PageTitle title="Table P2H | Bima Nusa Internasional" />
             <TableP2h />
+          </>
+        }
+      />
+      <Route
+        path="/tm"
+        element={
+          <>
+            <PageTitle title="Table Timesheet | Bima Nusa Internasional" />
+            <TableTm />
           </>
         }
       />

@@ -43,6 +43,7 @@ interface UpdateUserResponse {
     phoneNumber: string;
     imageUrl: string;
     role: string;
+    token: string;
   };
 }
 export const updateUserData = async (
@@ -69,11 +70,12 @@ export const updateUserData = async (
 
   try {
     const response = await api.patch<UpdateUserResponse>(
-      `/user/${updateData.id}`,
+      `/user/update`,
       formData,
       {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${updateData.token}`,
         },
       },
     );

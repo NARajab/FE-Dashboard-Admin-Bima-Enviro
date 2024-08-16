@@ -25,4 +25,5 @@ export type UpdateUser = {
   email: string;
   phoneNumber: string;
   imageUrl: File | null;
+  token: string | null;
 };
